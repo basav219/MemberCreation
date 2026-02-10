@@ -13,6 +13,26 @@ class Member extends BaseController
 
     public function store()
     {
+        $validation = \Config\Services::validation();
+
+        $rules = [
+            'customer_id' => 'required',
+            'member_code' => 'required',
+            'name'        => 'required|min_length[3]',
+            'dob'         => 'required|valid_date',
+            'mobile'      => 'required|numeric|exact_length[10]',
+            'email'       => 'permit_empty|valid_email',
+            'photo'       => 'uploaded[photo]|max_size[photo,2048]|is_image[photo]',
+            'signature'   => 'uploaded[signature]|max_size[signature,2048]|is_image[signature]'
+        ];
+        
+
+        if (!$this->validate($rules)) {
+            return view('member/create', [
+                'validation' => $this->validator
+            ]);
+        }
+
         $photo = $this->request->getFile('photo');
         $signature = $this->request->getFile('signature');
 
@@ -26,7 +46,7 @@ class Member extends BaseController
         if ($signatureName) {
             $signature->move('uploads/signatures', $signatureName);
         }
-
+        
         $model = new MemberModel();
 
         $model->insert([
@@ -53,4 +73,52 @@ class Member extends BaseController
 
         return redirect()->to('/member/create')->with('success', 'Member Created Successfully');
     }
+    public function index()
+    {
+    $model = new \App\Models\MemberModel();
+
+    $data['members'] = $model->paginate(5);
+    $data['pager']   = $model->pager;
+
+    return view('member/list', $data);
+}
+    public function edit($id)
+    {
+    $model = new \App\Models\MemberModel();
+    $data['member'] = $model->find($id);
+
+    return view('member/edit', $data);
+}
+   public function update($id)
+{
+    $model = new \App\Models\MemberModel();
+
+    $data = [
+        'customer_id' => $this->request->getPost('customer_id'),
+        'member_code' => $this->request->getPost('member_code'),
+        'name'        => $this->request->getPost('name'),
+        'mobile'      => $this->request->getPost('mobile'),
+        'email'       => $this->request->getPost('email'),
+    ];
+
+    // Photo update
+    $photo = $this->request->getFile('photo');
+    if ($photo && $photo->isValid()) {
+        $photoName = $photo->getRandomName();
+        $photo->move('uploads/photos', $photoName);
+        $data['photo'] = $photoName;
+    }
+
+    // Signature update
+    $signature = $this->request->getFile('signature');
+    if ($signature && $signature->isValid()) {
+        $signName = $signature->getRandomName();
+        $signature->move('uploads/signatures', $signName);
+        $data['signature'] = $signName;
+    }
+
+    $model->update($id, $data);
+
+    return redirect()->to('/member')->with('success', 'Member updated successfully');
+}
 }

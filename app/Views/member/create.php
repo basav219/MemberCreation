@@ -3,38 +3,22 @@
 <head>
     <title>Member Creation</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background:#f4f4f4; }
-        .form-control, .form-select { font-size:14px; }
-        .box {
-            border:1px solid #ccc;
-            background:#fff;
-            padding:10px;
-            min-height:150px;
-        }
-        .img-box {
-            width:100%;
-            height:180px;
-            border:1px solid #999;
-            background:#e9e9e9;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-        }
-        .footer-btns button {
-            margin-right:5px;
-            min-width:90px;
-        }
-    </style>
+    <link rel="stylesheet" href="<?= base_url('CSS/app.css') ?>">
 </head>
 <body>
 <div class="container-fluid mt-2">
     <div class="bg-secondary text-white text-center p-2 fw-bold">
         MEMBER CREATION
     </div>
-
-    <form method="post" enctype="multipart/form-data" action="<?= base_url('member/store') ?>">
-
+    <?php if (isset($validation)) : ?>
+    <div style="color:red">
+        <?= $validation->listErrors(); ?>
+    </div>
+<?php endif; ?>
+    <form action="<?= site_url('member/store') ?>" 
+      method="post" 
+      enctype="multipart/form-data" 
+      onsubmit="return validateForm();">
     <div class="row mt-2">
 
         <!-- LEFT FORM -->
@@ -113,11 +97,11 @@
             <div class="row mb-2">
                 <div class="col-4">D.O.B</div>
                 <div class="col-4">
-                    <input type="date" class="form-control" name="dob">
+                    <input type="date" class="form-control" name="dob" onchange="calculateAge()">
                 </div>
                 <div class="col-2">Age</div>
                 <div class="col-2">
-                    <input class="form-control" name="age">
+                    <input class="form-control" name="age" id="age" readonly>
                 </div>
             </div>
 
@@ -156,28 +140,33 @@
 
         <!-- RIGHT IMAGE -->
          
+         <!-- IMAGE PREVIEW -->
         <div class="col-md-3 text-center">
-            <div class="img-box mb-2">Image</div>
-            <input type="file" name="photo" class="form-control mb-3">
+          <div class="preview-box">
+          <img id="photoPreview" src="" alt="Image">
+          </div>
+          <input type="file" name="photo" id="photo" accept="image/*">
 
-            <div class="img-box mb-2">Signature</div>
-            <input type="file" name="signature" class="form-control">
-        </div> -->
-
-    <!-- </div>
+         <!-- SIGNATURE PREVIEW -->
+           <div class="preview-box">
+           <img id="signPreview" src="" alt="Signature">
+           </div>
+           <input type="file" name="signature" id="signature" accept="image/*">
+        </div>
 
     <!-- FOOTER BUTTONS -->
     <div class="footer-btns text-center mt-3 bg-dark p-2">
         <!-- <button type="button" class="btn btn-light">New</button> -->
         <button type="submit" class="btn btn-success">Save</button>
-        <!-- <a href="<?= base_url('member/list') ?>" class="btn btn-light">View</a>
-        <button type="button" class="btn btn-light">Modify</button>
+        <a href="<?= site_url('member') ?>" class="btn btn-light">View</a>
+        <!-- <button type="button" class="btn btn-light">Modify</button> -->
         <button type="reset" class="btn btn-light">Clear</button>
-        <button type="button" class="btn btn-light">Print</button>
+        <!-- <button type="button" class="btn btn-light">Print</button>
         <button type="button" class="btn btn-light">Exit</button> -->
     </div>
 
     </form>
 </div>
+<script src="<?= base_url('JS/app.js') ?>"></script>
 </body>
 </html>
