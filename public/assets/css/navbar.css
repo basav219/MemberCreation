@@ -1,0 +1,82 @@
+.topbar {
+    height: 60px;
+    background: #0b1d3a;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+}
+
+/* LEFT GROUP */
+.left {
+    display: flex;
+    align-items: center;
+    gap: 30px;   /* space between Bank name & Customers */
+}
+
+.brand {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* MENU */
+.menu {
+    display: flex;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropbtn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    padding: 6px 10px;
+}
+
+/* DROPDOWN MENU */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 80%;  /* directly below Customers */
+    left: 0;        /* aligned with Customers */
+    background: #1e293b;
+    min-width: 200px;
+    border-radius: 8px;
+    margin-top: 8px;
+    box-shadow: 0 8px 20px rgba(0,0,0,.25);
+    z-index: 999;
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 10px 14px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.dropdown-content a:hover {
+    background: #334155;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* RIGHT SIDE */
+.user {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logout {
+    color: #ff4d4d;
+    font-weight: 600;
+    text-decoration: none;
+}

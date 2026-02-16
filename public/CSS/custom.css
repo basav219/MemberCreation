@@ -1,0 +1,61 @@
+/*MEMBER SEARCH BAR STYLES*/
+
+
+.member-search-card {
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+/* Add New Member Button */
+.add-member-btn {
+    font-weight: 200;
+    font-size: 15px;
+    border-radius: 6px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Search Input Group */
+.search-input-group {
+    height: 44px;
+}
+
+/* Search Input */
+.search-input {
+    border-radius: 6px 0 0 6px;
+    font-size: 14px;
+}
+
+/* Search Button */
+.search-btn {
+    border-radius: 0;
+    font-weight: 500;
+}
+
+/* Clear Button */
+.clear-btn {
+    border-radius: 0 6px 6px 0;
+    font-weight: 600;
+}
+
+/* Hover effects */
+.search-btn:hover {
+    background-color: #212529;
+}
+
+.add-member-btn:hover {
+    opacity: 0.95;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+
+    .add-member-btn {
+        width: 100%;
+    }
+
+    .search-input-group {
+        margin-top: 8px;
+    }
+}
