@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Member Correction</title>
+    <title>Customer Correction</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     </head>
 <body>
@@ -13,7 +13,7 @@
 
 <div class="container-fluid mt-2">
     <div class="bg-secondary text-white text-center p-2 fw-bold">
-        MEMBER CORRECTION
+        CUSTOMER CORRECTION
     </div>
     <!-- //Alart message for not updating the member data -->
     <?php if (session()->getFlashdata('error')) : ?>
@@ -109,65 +109,72 @@
                     <textarea class="form-control" name="permanent_address" placeholder="PERMANENT FULL ADDRESS"><?= esc($member['permanent_address'])?></textarea>
                 </div>
             </div>
-            <div class="row mb-2">
-               <div class="col-4">Ration Card Type</div>
-                <div class="col-2">
-                  <select name="ration_card_type" class="form-select">
-                      <option value="">-- Select Ration Card Type --</option>
-                      <option value="APL" <?= isset($member['ration_card_type']) && $member['ration_card_type'] === 'APL' ? 'selected' : '' ?>>APL</option>
-                      <option value="BPL" <?= isset($member['ration_card_type']) && $member['ration_card_type'] === 'BPL' ? 'selected' : '' ?>>BPL</option>
-                  </select>
-               </div>
-                <div class="col-3">Ration Card Number</div>
-                <div class="col-3">
-                 <input class="form-control"  name="rationcard_number" placeholder="RATION CARD NUMBER" value="<?= esc($member['rationcard_number']) ?>">
-                 </div>
-            </div>
-            <hr class="my-4 border-gray-300"> 
-            <div class="row mb-2">
-                <div class="col-4">pincode</div>
-                <div class="col-8">
-                    <input type="text" id="pincode" name="pincode" class="form-control" placeholder="6 DIGIT PINCODE" maxlength="6" oninput="validatePincode()" value="<?= esc($member['pincode']) ?>">
-                    <small id="pincodeError" style="color:red"></small>
-                </div>
-            </div>
            <div class="row mb-2">
-                <div class="col-4">Area</div>
-                <div class="col-8">
-                    <input type="text" name="area" class="form-control" placeholder="AREA" value="<?= esc($member['area']) ?>">
-                </div>
-            </div>
-            <div class="row mb-2">
-                <div class="col-4">city</div>
-                <div class="col-8">
-                    <input class="form-control" name="city" placeholder="CITY" value="<?= esc($member['city']) ?>">
-                </div>
-            </div>
-            <div class="row mb-2">
-                <div class="col-4">Taluk</div>
-                <div class="col-8">
-                    <input type="text" name="taluk" class="form-control"  placeholder="TALUK" value="<?= esc($member['taluk']) ?>">
-                </div>
-            </div>
-            <div class="row mb-2">
-                <div class="col-4">District</div>
-                <div class="col-8">
-                    <input type="text"  name="district" class="form-control"  placeholder="DISTRICT" value="<?= esc($member['district']) ?>">
-                </div>
-            </div>
-            <div class="row mb-2">
-                <div class="col-4">State</div>
-                <div class="col-8">
-                    <input type="text"  name="state" class="form-control"  placeholder="STATE" value="<?= esc($member['state']) ?>">
-                </div>
-            </div>
-             <div class="row mb-2">
-                <div class="col-4">Country</div>
-                <div class="col-8">
-                    <input class="form-control" name="country"  placeholder="COUNTRY" value="<?= esc($member['country']) ?>">
-                </div>
-            </div>
-        </div>
+                                <div class="col-4">Ration Card Type</div>
+                                <div class="col-2">
+                                    <select name="ration_card_type" class="form-select">
+                                        <option value="">-- Select --</option>
+                                        <option value="APL" <?= $member['ration_card_type']=='APL'?'selected':'' ?>>APL</option>
+                                        <option value="BPL" <?= $member['ration_card_type']=='BPL'?'selected':'' ?>>BPL</option>
+                                    </select>
+                                </div>
+                                <div class="col-3">Ration Card Number</div>
+                                <div class="col-3">
+                                    <input class="form-control" name="rationcard_number" value="<?= esc($member['rationcard_number']) ?>">
+                                </div>
+                            </div>
+                             <hr class="my-4 border-gray-300"> 
+                                <div class="row mb-2">
+                                <div class="col-4">Pincode</div>
+                                <div class="col-8">
+                                    <input type="text" id="pincode" name="pincode" class="form-control" value="<?= esc($member['pincode']) ?>" maxlength="6">
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-4">Area</div>
+                                <div class="col-8">
+                                    <select id="area" name="area" class="form-select">
+                                        <option value="<?= esc($member['area']) ?>" selected><?= esc($member['area']) ?></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-4">City</div>
+                                <div class="col-8">
+                                    <input type="text" name="city" class="form-control" value="<?= esc($member['city']) ?>">
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-4">Taluk</div>
+                                <div class="col-8">
+                                    <input type="text" id="taluk" class="form-control" value="<?= esc($member['taluk']) ?>" readonly>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-4">District</div>
+                                <div class="col-8">
+                                    <input type="text" id="district" class="form-control" value="<?= esc($member['district']) ?>" readonly>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-4">State</div>
+                                <div class="col-8">
+                                    <input type="text" id="state" class="form-control" value="<?= esc($member['state']) ?>" readonly>
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <div class="col-4">Country</div>
+                                <div class="col-8">
+                                    <input type="text" name="country" class="form-control" value="<?= esc($member['country']) ?>">
+                                </div>
+                            </div>
+                        </div>
 
         <!-- CENTER FORM -->
         <div class="col-md-6">
@@ -401,6 +408,40 @@
     </div>
 
 </div>
+
+ <!-- Introducer Section -->
+                    <div class="bg-secondary text-white text-left p-2 fw-bold">Introducer Details</div>
+                    <div class="card mt-3">
+                        <div class="card-body position-relative">
+                            <div class="col-md-4">
+                                <label for="introducer_search" class="form-label">Introducer Search (Customer ID / Name)</label>
+                                <input type="text" id="introducer_search" class="form-control" placeholder="Type Customer ID or Name" value="<?= esc($member['introducer_customer_id']) ?>">
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6 mb-2">
+                                    <label>Introducer Customer Id:</label>
+                                    <input type="text" name="introducer_customer_id" id="introducer_customer_id" class="form-control" value="<?= esc($member['introducer_customer_id']) ?>" readonly>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label>Introducer Name:</label>
+                                    <input type="text" name="introducer_name" id="introducer_name" class="form-control" value="<?= esc($member['introducer_name']) ?>" readonly>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label>Father/Husband Name:</label>
+                                    <input type="text" name="introducer_father" id="introducer_father" class="form-control" value="<?= esc($member['introducer_father']) ?>" readonly>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label>Mobile:</label>
+                                   
+                                    <input type="text" id="introducer_mobile" class="form-control" value="<?= esc($member['introducer_mobile']) ?>" readonly>
+                                </div>
+                                 <input type="hidden" name="introducer_mobile" id="introducer_mobile" value="<?= esc($member['introducer_mobile']) ?>">
+                                <div id="introducer_results" class="list-group position-absolute w-100" style="top: 75px;z-index: 1000;display: none;max-height: 220px;overflow-y: auto;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+
  <div class="bg-secondary text-white text-left p-2 fw-bold">
     DCC/ADB/ OTHER BANK DETAILS
 </div>
@@ -554,6 +595,99 @@
         </div>
     </div>
    </div>
+   <script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  const input = document.getElementById('introducer_search');
+  const box   = document.getElementById('introducer_results');
+
+  if (!input || !box) return;
+
+  input.addEventListener('keyup', function () {
+    const q = this.value.trim();
+
+    if (q.length < 2) {
+      box.innerHTML = '';
+      box.style.display = 'none';
+      return;
+    }
+
+    fetch("<?= base_url('member/searchIntroducer') ?>?q=" + encodeURIComponent(q))
+      .then(res => res.json())
+      .then(data => {
+
+        if (!data.length) {
+          box.innerHTML = '<div class="list-group-item">No results</div>';
+          box.style.display = 'block';
+          return;
+        }
+
+        box.innerHTML = data.map(row => `
+          <div class="list-group-item list-group-item-action"
+               style="cursor:pointer"
+               onclick="selectIntroducer(
+                 '${row.customer_id}',
+                 '${row.name}',
+                 '${row.father}',
+                 '${row.mobile}'
+               )">
+            <strong>${row.customer_id}</strong> – ${row.name}
+          </div>
+        `).join('');
+
+        box.style.display = 'block';
+      });
+  });
+
+});
+
+function selectIntroducer(id, name, father, mobile) {
+  document.getElementById('introducer_search').value = id;
+  document.getElementById('introducer_customer_id').value = id;
+  document.getElementById('introducer_name').value = name;
+  document.getElementById('introducer_father').value = father;
+  document.getElementById('introducer_mobile').value = mobile;
+  document.getElementById('introducer_results').style.display = 'none';
+}
+</script>
+
+<script>
+// Step 1: Pincode → Areas
+document.getElementById('pincode').addEventListener('keyup', function () {
+    const pincode = this.value.trim();
+    if (pincode.length !== 6) return;
+
+    fetch('<?= base_url("member/fetch-areas") ?>?pincode=' + pincode)
+        .then(res => res.json())
+        .then(rows => {
+            const areaSelect = document.getElementById('area');
+            areaSelect.innerHTML = '<option value="">-- Select Area --</option>';
+            rows.forEach(row => {
+                const opt = document.createElement('option');
+                opt.value = row.area;
+                opt.textContent = row.area;
+                areaSelect.appendChild(opt);
+            });
+        });
+});
+
+// Step 2: Area → Taluk/District/State
+document.getElementById('area').addEventListener('change', function () {
+    const area = this.value;
+    const pincode = document.getElementById('pincode').value;
+
+    if (!area) return;
+
+    fetch('<?= base_url("member/fetch-location-by-area") ?>?pincode=' + pincode + '&area=' + encodeURIComponent(area))
+        .then(res => res.json())
+        .then(data => {
+            if(!data) return;
+            document.getElementById('taluk').value    = data.taluk ?? '';
+            document.getElementById('district').value = data.district ?? '';
+            document.getElementById('state').value    = data.state ?? '';
+        });
+});
+</script>
 <?= view('admin/footer') ?>
 </body>
 </html>

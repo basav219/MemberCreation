@@ -1,3 +1,4 @@
+/* ---------------- FORM VALIDATION ---------------- */
 function validateForm() {
     const form = document.forms["memberForm"];
 
@@ -17,17 +18,18 @@ function validateForm() {
             return false;
         }
     }
-    // Document fields (optional but length check if filled)
+
+    // Optional document fields
     const docFields = [
         {name:'dl_no', len:10, label:'Driving License'},
         {name:'gst_no', len:15, label:'GST Number'},
         {name:'passport_no', len:8, label:'Passport Number'},
         {name:'gas_consumer_no', len:10, label:'Gas Consumer Number'},
-        {name:'voter', len:10, label:'voter'}
-
+        {name:'voter', len:10, label:'Voter ID'}
     ];
+
     for (let doc of docFields) {
-        let val = form[doc.name].value.trim();
+        let val = form[doc.name]?.value.trim() || '';
         if (val && val.length < doc.len) {
             alert(`Invalid ${doc.label}`);
             form[doc.name].focus();
@@ -35,6 +37,7 @@ function validateForm() {
         }
     }
 
+    // Individual validations
     if (
         !validateName() ||
         !validateEmail() ||
@@ -43,29 +46,34 @@ function validateForm() {
         !calculateAge() ||
         !validateNominee() ||
         !validateDccAdbBank() ||
-        !validateOtherBank()||
-        !validatePan() ||       //  PAN check
-        !validateAdhar()        //  Aadhaar check
-    ) {
-        return false;
-    }
-   
-    if (!photo) {
+        !validateOtherBank() ||
+        !validatePan() ||
+        !validateAdhar()
+    ) return false;
+
+    // Photo & Signature
+    const photo = document.getElementById('photo');
+    const signature = document.getElementById('signature');
+
+    if (!photo || !photo.files.length) {
         alert("Please upload a photo.");
+        photo.focus();
         return false;
     }
-
-    if (!signature) {
+    if (!signature || !signature.files.length) {
         alert("Please upload a signature.");
+        signature.focus();
         return false;
     }
 
-    return true; // ✅ FORM WILL SUBMIT
+    return true; // ✅ FORM IS VALID
 }
-      
+
+/* ---------------- NAME ---------------- */
 function validateName() {
-    let name = document.getElementById("name").value;
+    let name = document.getElementById("name")?.value || '';
     let error = document.getElementById("nameError");
+    if (!error) return true;
 
     if (name.trim() === "") {
         error.innerText = "Name is required";
@@ -78,16 +86,19 @@ function validateName() {
         return true;
     }
 }
-function validateEmail() {
-    let email = document.getElementById("email").value.trim();
-    let error = document.getElementById("emailError");
-    let pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (email === "") {
+/* ---------------- EMAIL ---------------- */
+function validateEmail() {
+    let email = document.getElementById("email")?.value.trim() || '';
+    let error = document.getElementById("emailError");
+    if (!error) return true;
+
+    if (!email) {
         error.innerText = "";
-        return true; // email optional
+        return true; // optional
     }
 
+    const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!pattern.test(email)) {
         error.innerText = "Enter a valid email address";
         return false;
@@ -96,30 +107,32 @@ function validateEmail() {
     error.innerText = "";
     return true;
 }
+
+/* ---------------- MOBILE ---------------- */
 function validateMobile() {
-    let mobile = document.getElementById("mobile").value;
+    let mobile = document.getElementById("mobile")?.value || '';
     let error  = document.getElementById("mobileError");
+    if (!error) return true;
 
-    // Indian mobile number pattern
-    let pattern = /^[6-9][0-9]{9}$/;
-
-    if (mobile === "") {
+    const pattern = /^[6-9][0-9]{9}$/;
+    if (!mobile) {
         error.innerText = "Mobile number is required";
         return false;
-    } 
-    else if (!pattern.test(mobile)) {
+    } else if (!pattern.test(mobile)) {
         error.innerText = "Enter valid 10-digit mobile number";
         return false;
-    } 
-    else {
+    } else {
         error.innerText = "";
         return true;
     }
 }
+
+/* ---------------- DATE OF BIRTH / AGE ---------------- */
 function calculateAge() {
-    let dob = document.getElementById("dob").value;
+    let dob = document.getElementById("dob")?.value;
     let ageField = document.getElementById("age");
     let error = document.getElementById("dobError");
+    if (!ageField || !error) return true;
 
     if (!dob) {
         ageField.value = "";
@@ -139,6 +152,7 @@ function calculateAge() {
 
     if (age < 0) {
         error.innerText = "Invalid Date of Birth";
+        ageField.value = "";
         return false;
     }
 
@@ -146,86 +160,59 @@ function calculateAge() {
     error.innerText = "";
     return true;
 }
+
+/* ---------------- ONLY NUMBERS ---------------- */
 function onlyNumbers(e) {
-    // Allow control keys
-    if (
-        e.key === "Backspace" ||
-        e.key === "Delete" ||
-        e.key === "Tab" ||
-        e.key === "ArrowLeft" ||
-        e.key === "ArrowRight"
-    ) {
-        return true;
-    }
-
-    // Allow numbers only (0–9)
-    if (e.key >= "0" && e.key <= "9") {
-        return true;
-    }
-
-    // Block everything else (alphabets, symbols)
+    if (["Backspace","Delete","Tab","ArrowLeft","ArrowRight"].includes(e.key)) return true;
+    if (e.key >= "0" && e.key <= "9") return true;
     e.preventDefault();
     return false;
 }
 
+/* ---------------- PINCODE ---------------- */
 function validatePincode() {
-    let pincode = document.getElementById("pincode").value;
+    let pincode = document.getElementById("pincode")?.value || '';
     let error   = document.getElementById("pincodeError");
+    if (!error) return true;
 
-    let pattern = /^[1-9][0-9]{5}$/;
-
-    if (pincode === "") {
+    const pattern = /^[1-9][0-9]{5}$/;
+    if (!pincode) {
         error.innerText = "Pincode is required";
         return false;
-    } 
-    else if (!pattern.test(pincode)) {
+    } else if (!pattern.test(pincode)) {
         error.innerText = "Enter valid 6-digit pincode";
         return false;
-    } 
-    else {
+    } else {
         error.innerText = "";
         return true;
     }
 }
-let photoInput = document.getElementById('photo');
-let signInput = document.getElementById('signature');
 
-let photoPreview = document.getElementById('photoPreview');
-let signPreview = document.getElementById('signPreview');
+/* ---------------- PHOTO & SIGNATURE PREVIEW ---------------- */
+const photoInput = document.getElementById('photo');
+const signInput = document.getElementById('signature');
+const photoPreview = document.getElementById('photoPreview');
+const signPreview = document.getElementById('signPreview');
 
 function handlePreview(input, preview) {
-    const file = input.files[0];
+    const file = input?.files[0];
     if (!file) {
-        preview.src = "";      // Clear preview
-        return;
-    }
-
-    const MAX_SIZE = 100 * 1024;
-    if (file.size > MAX_SIZE) {
-        alert("File size must not exceed 100KB!");
-        input.value = "";
         preview.src = "";
         return;
     }
 
-    const allowedTypes = ["image/jpeg", "image/png"];
-    if (!allowedTypes.includes(file.type)) {
-        alert("Only JPG or PNG files are allowed!");
-        input.value = "";
-        preview.src = "";
-        return;
-    }
+    const MAX_SIZE = 100 * 1024; // 100 KB
+    const allowedTypes = ["image/jpeg","image/png"];
+    if (file.size > MAX_SIZE) { alert("File size must not exceed 100KB!"); input.value=""; preview.src=""; return; }
+    if (!allowedTypes.includes(file.type)) { alert("Only JPG or PNG allowed!"); input.value=""; preview.src=""; return; }
 
     const reader = new FileReader();
-    reader.onload = function(e) {
-        preview.src = e.target.result;
-    }
+    reader.onload = e => preview.src = e.target.result;
     reader.readAsDataURL(file);
 }
 
-photoInput.addEventListener("change", () => handlePreview(photoInput, photoPreview));
-signInput.addEventListener("change", () => handlePreview(signInput, signPreview));
-
+photoInput?.addEventListener("change", () => handlePreview(photoInput, photoPreview));
+signInput?.addEventListener("change", () => handlePreview(signInput, signPreview));
 
 document.getElementById('photo').addEventListener('change', function () {
     const file = this.files[0];
@@ -247,212 +234,79 @@ document.getElementById('signature').addEventListener('change', function () {
     }
 });
 
-/* ---------- NOMINEE ---------- */
-
+/* ---------------- NOMINEE ---------------- */
 function validateNominee() {
-    const name = document.querySelector('[name="nominee_name"]').value.trim();
-    if (!name) return true; // optional
+    const name = document.querySelector('[name="nominee_name"]')?.value.trim() || '';
+    if (!name) return true;
 
-    const age = document.querySelector('[name="nominee_age"]').value;
-    const mobile = document.querySelector('[name="nominee_mobile"]').value;
-    const adhar = document.querySelector('[name="nominee_adhar"]').value;
+    const age = parseInt(document.querySelector('[name="nominee_age"]')?.value) || 0;
+    const mobile = document.querySelector('[name="nominee_mobile"]')?.value || '';
+    const adhar = document.querySelector('[name="nominee_adhar"]')?.value || '';
 
     if (age <= 0) { alert("Invalid nominee age"); return false; }
-    if (mobile.length !== 10) { alert("Nominee mobile must be 10 digits"); return false; }
-    if (adhar.length !== 12) { alert("Nominee Aadhaar must be 12 digits"); return false; }
+    if (mobile && mobile.length !== 10) { alert("Nominee mobile must be 10 digits"); return false; }
+    if (adhar && adhar.length !== 12) { alert("Nominee Aadhaar must be 12 digits"); return false; }
 
     return true;
 }
 
-/* ---------- BANK VALIDATION ---------- */
-
+/* ---------------- BANK VALIDATION ---------------- */
 function validateDccAdbBank() {
-    const bank = document.querySelector('[name="select_dcc_adb_bankname"]').value;
+    const bank = document.querySelector('[name="select_dcc_adb_bankname"]')?.value;
     if (!bank) return true;
 
-    const acc = document.querySelector('[name="dcc_adb_accountnumber"]').value.trim();
-    const ifsc = document.querySelector('[name="dcc_adb_ifsccode"]').value.trim();
+    const acc = document.querySelector('[name="dcc_adb_accountnumber"]')?.value.trim();
+    const ifsc = document.querySelector('[name="dcc_adb_ifsccode"]')?.value.trim();
 
     if (!acc) { alert("DCC/ADB account required"); return false; }
-    if (ifsc.length < 8) { alert("Invalid IFSC"); return false; }
+    if (!ifsc || ifsc.length < 8) { alert("Invalid IFSC"); return false; }
 
     return true;
 }
 
 function validateOtherBank() {
-    const bank = document.querySelector('[name="select_other_bankname"]').value;
+    const bank = document.querySelector('[name="select_other_bankname"]')?.value;
     if (!bank) return true;
 
-    const acc = document.querySelector('[name="other_accountnumber"]').value.trim();
-    const ifsc = document.querySelector('[name="other_ifsccode"]').value.trim();
+    const acc = document.querySelector('[name="other_accountnumber"]')?.value.trim();
+    const ifsc = document.querySelector('[name="other_ifsccode"]')?.value.trim();
 
     if (!acc) { alert("Other bank account required"); return false; }
-    if (ifsc.length < 8) { alert("Invalid IFSC"); return false; }
+    if (!ifsc || ifsc.length < 8) { alert("Invalid IFSC"); return false; }
 
     return true;
 }
 
+/* ---------------- PAN / ADHAR ---------------- */
 function validatePan() {
-    let pan = document.getElementById("pan").value
-    let error = document.getElementById("panError");
-    // PAN pattern: 5 letters, 4 digits, 1 letter (example: ABCDE1234F)
-    const pattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i;
+    const pan = document.getElementById("pan")?.value || '';
+    const error = document.getElementById("panError");
+    if (!error) return true;
 
-    if (pan==="") {
-        error.innerText = "PAN is required";
-        return false;
-    } else if (!pattern.test(pan)) {
-        error.innerText = "Enter a valid PAN (ABCDE1234F)";
-        return false;
-    } else {
-        error.innerText = "";
-        return true;
-    }
+    const pattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i;
+    if (!pan) { error.innerText="PAN is required"; return false; }
+    if (!pattern.test(pan)) { error.innerText="Enter valid PAN (ABCDE1234F)"; return false; }
+    error.innerText=""; return true;
 }
 
 function validateAdhar() {
-    const adhar = document.getElementById("adhar").value
+    const adhar = document.getElementById("adhar")?.value || '';
     const error = document.getElementById("adharError");
-    const pattern = /^\d{12}$/; // 12 digits
+    if (!error) return true;
 
-    if (!adhar) {
-        error.innerText = "Aadhaar number is required";
-        return false;
-    } else if (!pattern.test(adhar)) {
-        error.innerText = "Enter a valid 12-digit Aadhaar number";
-        return false;
-    } else {
-        error.innerText = "";
-        return true;
-    }
+    const pattern = /^\d{12}$/;
+    if (!adhar) { error.innerText="Aadhaar is required"; return false; }
+    if (!pattern.test(adhar)) { error.innerText="Enter valid 12-digit Aadhaar"; return false; }
+    error.innerText=""; return true;
 }
 
-// document.getElementById('memberForm').addEventListener('submit', function(e) {
-//     let adhar = document.getElementById('adhar').value.trim();
-//     let pan = document.getElementById('pan').value.trim().toUpperCase();
-//     let valid = true;
-
-//     if(!/^\d{12}$/.test(adhar)) valid = false;
-//     if(!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(pan)) valid = false;
-
-//     if(!valid) e.preventDefault(); // stop submit
-// });
-// function allowOnlyNumbers(input) {
-//     input.value = input.value.replace(/[^0-9]/g, '');
-// }
-
+/* ---------------- ONLY ALPHABETS ---------------- */
 function onlyAlpabets(e) {
-    // Allow control keys
-    if (
-        e.key === "Backspace" ||
-        e.key === "Delete" ||
-        e.key === "Tab" ||
-        e.key === "ArrowLeft" ||
-        e.key === "ArrowRight"
-    ) {
-        return true;
-    }
-
-    // Allow Alphabets only (0–9)
-    if (/^[a-zA-Z]$/.test(e.key)) {
-        return true;
-    }
-
-    // Block everything else (alphabets, symbols)
+    if (["Backspace","Delete","Tab","ArrowLeft","ArrowRight"].includes(e.key)) return true;
+    if (/^[a-zA-Z]$/.test(e.key)) return true;
     e.preventDefault();
     return false;
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-
-  const input = document.getElementById('introducer_search');
-  const box   = document.getElementById('introducer_results');
-
-  if (!input || !box) return;
-
-  input.addEventListener('keyup', function () {
-    const q = this.value.trim();
-
-    if (q.length < 2) {
-      box.innerHTML = '';
-      box.style.display = 'none';
-      return;
-    }
-
-    fetch("<?= base_url('member/searchIntroducer') ?>?q=" + encodeURIComponent(q))
-      .then(res => res.json())
-      .then(data => {
-
-        if (!data.length) {
-          box.innerHTML = '<div class="list-group-item">No results</div>';
-          box.style.display = 'block';
-          return;
-        }
-
-        box.innerHTML = data.map(row => `
-          <div class="list-group-item list-group-item-action"
-               style="cursor:pointer"
-               onclick="selectIntroducer(
-                 '${row.customer_id}',
-                 '${row.name}',
-                 '${row.father}',
-                 '${row.mobile}'
-               )">
-            <strong>${row.customer_id}</strong> – ${row.name}
-          </div>
-        `).join('');
-
-        box.style.display = 'block';
-      });
-  });
-
-});
-
-function selectIntroducer(id, name, father, mobile) {
-  document.getElementById('introducer_search').value = id;
-  document.getElementById('introducer_customer_id').value = id;
-  document.getElementById('introducer_name').value = name;
-  document.getElementById('introducer_father').value = father;
-  document.getElementById('introducer_mobile').value = mobile;
-  document.getElementById('introducer_results').style.display = 'none';
-}
-
-// Step 1: Pincode → Load Areas
-document.getElementById('pincode').addEventListener('keyup', function () {
-    const pincode = this.value.trim();
-    if (pincode.length !== 6) return; // Only trigger when full 6-digit
-
-    fetch('<?= base_url("member/fetch-areas") ?>?pincode=' + pincode)
-        .then(res => res.json())
-        .then(rows => {
-            const areaSelect = document.getElementById('area');
-            areaSelect.innerHTML = '<option value="">-- Select Area --</option>';
-            rows.forEach(row => {
-                const opt = document.createElement('option');
-                opt.value = row.area;
-                opt.textContent = row.area;
-                areaSelect.appendChild(opt);
-            });
-        });
-});
 
 
-// Step 2: Area → Auto-fill location
-document.getElementById('area').addEventListener('change', function () {
-
-    const area = this.value;
-    const pincode = document.getElementById('pincode').value;
-
-    if (!area) return;
-
-    fetch('<?= base_url("member/fetch-location-by-area") ?>?pincode=' + pincode + '&area=' + encodeURIComponent(area))
-        .then(res => res.json())
-        .then(data => {
-
-            if (!data) return;
-
-            document.getElementById('taluk').value    = data.taluk;
-            document.getElementById('district').value = data.district;
-            document.getElementById('state').value    = data.state;
-        });
-});

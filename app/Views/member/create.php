@@ -9,13 +9,13 @@
 <body>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
-        <?= view('admin/header', ['title' => 'Member Creation']) ?>
+        <?= view('admin/header', data: ['title' => 'Member Creation']) ?>
 <div class="container-fluid mt-2 px-5">
     <div class="card shadow-sm">
         <div class="card-body">
    
-<div class="container-fluid mt-2">
-    <div class="bg-secondary text-white text-center p-2 fw-bold">
+<div class="container-fluid mt-3">
+    <div class="bg-secondary text-white text-center p-2 fw-bold ">
         MEMBER CREATION
       </div>
          <form action="<?= base_url('member/edit-by-customer') ?>" method="post" class="mb-2">
@@ -51,7 +51,7 @@
                 <div class="col-4">Customer Id</div>
                 <div class="col-8">
                     <div class="input-group">
-                        <input class="form-control" name="customer_id" placeholder="Customer_ID" style="width: 100px; height: 25px;">
+                       <input type="text" class="form-control" id="customer_id" name="customer_id" value="<?= esc($customer_id ?? '') ?>" readonly>
                     </div>
                 </div>
             </div>
@@ -423,7 +423,7 @@
     
     <div class="card mt-3">
     <div class="card-body position-relative">
-   <div class="col-md-4" >
+   <div class="col-md-6" >
     <label for="introducer_search" class="form-label">
       Introducer Search (Customer ID / Name)
     </label>

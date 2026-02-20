@@ -45,14 +45,38 @@ class MemberModel extends Model
         // FILES
         'photo','signature',
 
+        //INTRODUCER 
+        'introducer_customer_id','introducer_name','introducer_father','introducer_mobile',
+
        
     ];
+    protected $useTimestamps = true;
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'updated_at';
+
+    // Autocomplete search for introducer
     public function searchIntroducer($keyword)
     {
         return $this->like('customer_id', $keyword)
                     ->orLike('name', $keyword)
                     ->findAll(10);
     }
-     // Search introducer for autocomplete
-   
+    // Generate next Customer ID in CUST0001 format
+    public function generateCustomerId()
+    {
+        $last = $this->select('customer_id')
+                     ->orderBy('id', 'DESC')
+                     ->first();
+
+        if (!$last || empty($last['customer_id'])) {
+            return 'CUST0001';
+        }
+
+        // Extract numeric part and increment
+        $num = (int)substr($last['customer_id'], 4) + 1;
+
+        // Pad with zeros to maintain 4 digits
+        return 'CUST' . str_pad($num, 4, '0', STR_PAD_LEFT);
+    }
 }
+  
