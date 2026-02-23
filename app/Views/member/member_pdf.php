@@ -21,6 +21,7 @@
     <th>Email</th>
     <th>DOB</th>
     <th>Address</th>
+    <th>Created By</th>
 </tr>
 
 <?php foreach ($members as $row): ?>
@@ -33,6 +34,8 @@
     <td><?= $row['email'] ?></td>
     <td><?= $row['dob'] ?></td>
     <td><?= $row['residential_address'] ?></td>
+    <td><?= $row['created_by'] ?></td>
+
 </tr>
 <?php endforeach; ?>
 

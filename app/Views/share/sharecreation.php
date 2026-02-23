@@ -320,6 +320,7 @@
 <button class="btn btn-primary px-4">Create Share</button>
 
 
+
 </div>
 
 </form>
@@ -411,17 +412,23 @@ function loadExistingNominees(nominees) {
         $('#nomineeTable tbody').append(`
             <tr>
                 <td class="td-name">${n.nominee_name}</td>
-                <td class="td-father">${n.nominee_father}</td>
-                <td class="td-relation">${n.nominee_relation}</td>
+                <td class="td-father">${n.nominee_father ?? ''}</td>
+                <td class="td-relation">${n.nominee_relation ?? ''}</td>
                 <td class="td-percent">${percent}</td>
                 <td>
                     <button type="button" class="btn btn-warning btn-sm editRow">Edit</button>
                     <button type="button" class="btn btn-danger btn-sm deleteRow">X</button>
                 </td>
 
+                <!-- 🔥 REQUIRED HIDDEN INPUTS -->
                 <input type="hidden" name="nominee_name[]" value="${n.nominee_name}">
-                <input type="hidden" name="nominee_father[]" value="${n.nominee_father}">
-                <input type="hidden" name="nominee_relation[]" value="${n.nominee_relation}">
+                <input type="hidden" name="nominee_father[]" value="${n.nominee_father ?? ''}">
+                <input type="hidden" name="nominee_gender[]" value="${n.nominee_gender ?? ''}">
+                <input type="hidden" name="nominee_relation[]" value="${n.nominee_relation ?? ''}">
+                <input type="hidden" name="nominee_mobile[]" value="${n.nominee_mobile ?? ''}">
+                <input type="hidden" name="nominee_age[]" value="${n.nominee_age ?? ''}">
+                <input type="hidden" name="nominee_address[]" value="${n.nominee_address ?? ''}">
+                <input type="hidden" name="nominee_other_details[]" value="${n.nominee_other_details ?? ''}">
                 <input type="hidden" name="nominee_percentage[]" value="${percent}">
             </tr>
         `);

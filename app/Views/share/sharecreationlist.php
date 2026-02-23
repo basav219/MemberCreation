@@ -57,8 +57,14 @@
             <!-- HEADER -->
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="fw-bold mb-0">Share Creation List</h5>
-
-                <div class="dropdown">
+            <div class="dropdown">
+                            <!-- 🔙 Back to Dashboard -->
+       
+        <?php if (session()->get('role') === 'superadmin'): ?>
+        <a href="<?= base_url('admin/dashboard') ?>" class="btn btn-primary btn-sm">
+            ← Back to Dashboard
+        </a>
+        <?php endif; ?>
                     <button class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
                         Export
                     </button>
@@ -97,6 +103,7 @@
                             <th>Number of shares</th>
                             <th>Account Number</th>
                             <th>Total Share Amount</th>
+                            <th>created By</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -113,6 +120,7 @@
                                 <td><?= esc($row['number_of_shares']) ?></td>
                                 <td><?= esc($row['account_number']) ?></td>
                                 <td><?= esc($row['total']) ?></td>
+                                <td><?= esc($row['created_by']) ?></td>
                                 <td class="action-btn text-center">
                                     <a href="<?= site_url('share/viewpagesharecreation/'.$row['customer_id']) ?>">View</a>
                                    <a href="<?= site_url('share/share_edit/'.$row['customer_id']) ?>">Edit</a>

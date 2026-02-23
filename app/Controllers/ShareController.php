@@ -93,30 +93,35 @@ class ShareController extends BaseController
 
 
            // -------- SAVE SHARE --------
-            $this->shareModel->insert([
-                'customer_id'     => $customerId,
-                'share_type'      => $this->request->getPost('share_type'),
-                'membership_date' => $this->request->getPost('membership_date'),
-                'lf_number'       => $this->request->getPost('lf_number'),
-                'account_number'  => $this->request->getPost('account_number'),
-                'resolution_date' => $this->request->getPost('resolution_date'),
-                'other_details'   => $this->request->getPost('other_details'),
-                'share_value'        => $this->request->getPost('share_value'),
-               'number_of_shares'   => $this->request->getPost('number_of_shares'),
-                'share_amount'       => $this->request->getPost('share_amount'),
-                 'share_fees'         => $this->request->getPost('share_fees'),
-                 'entry_fees'         => $this->request->getPost('entry_fees'),
-                'other_income'       => $this->request->getPost('other_income'),
-                'building_fund'      => $this->request->getPost('building_fund'),
-                 'total_income'       => $this->request->getPost('total_income'),
-                'total_expense'      => $this->request->getPost('total_expense'),
-                  'total'              => $this->request->getPost('total'),
-                'receipt_no'         => $this->request->getPost('receipt_no'),
-               'certificate_number' => $this->request->getPost('certificate_number'),
-                'receipt_mode'       => $this->request->getPost('receipt_mode'),
-                'payment_status'     => $this->request->getPost('payment_status'),
-               'transaction_detail' => $this->request->getPost('transaction_detail'),
-            ]);
+           $this->shareModel->insert([
+    'customer_id'     => $customerId,
+    'share_type'      => $this->request->getPost('share_type'),
+    'membership_date' => $this->request->getPost('membership_date'),
+    'lf_number'       => $this->request->getPost('lf_number'),
+    'account_number'  => $this->request->getPost('account_number'),
+    'resolution_date' => $this->request->getPost('resolution_date'),
+    'other_details'   => $this->request->getPost('other_details'),
+
+    'share_value'        => $this->request->getPost('share_value'),
+    'number_of_shares'   => $this->request->getPost('number_of_shares'),
+    'share_amount'       => $this->request->getPost('share_amount'),
+    'share_fees'         => $this->request->getPost('share_fees'),
+    'entry_fees'         => $this->request->getPost('entry_fees'),
+    'other_income'       => $this->request->getPost('other_income'),
+    'building_fund'      => $this->request->getPost('building_fund'),
+    'total_income'       => $this->request->getPost('total_income'),
+    'total_expense'      => $this->request->getPost('total_expense'),
+    'total'              => $this->request->getPost('total'),
+
+    'receipt_no'         => $this->request->getPost('receipt_no'),
+    'certificate_number' => $this->request->getPost('certificate_number'),
+    'receipt_mode'       => $this->request->getPost('receipt_mode'),
+    'payment_status'     => $this->request->getPost('payment_status'),
+    'transaction_detail' => $this->request->getPost('transaction_detail'),
+
+    // 🔥 THIS LINE FIXES EVERYTHING
+    'created_by' => session()->get('username'),
+]);
 
             // -------- NOMINEE DATA (ARRAY SAFE) --------
             $names       = (array) $this->request->getPost('nominee_name');
@@ -165,70 +170,107 @@ class ShareController extends BaseController
     }
 
     // ================= AUTOCOMPLETE SEARCH =================
-    public function searchCustomer()
-    {
-        if (!$this->request->isAJAX()) {
-            return;
-        }
-
-        $term = $this->request->getGet('term');
-
-        $customers = $this->memberModel
-            ->select('customer_id, name')
-            ->like('customer_id', $term)
-            ->orLike('name', $term)
-            ->limit(10)
-            ->get()
-            ->getResultArray();
-
-        $result = [];
-
-        foreach ($customers as $row) {
-            $result[] = [
-                'label' => $row['customer_id'] . ' - ' . $row['name'],
-                'value' => $row['customer_id']
-            ];
-        }
-
-        return $this->response->setJSON($result);
+   public function searchCustomer()
+{
+    if (!$this->request->isAJAX()) {
+        return;
     }
 
+    $term    = $this->request->getGet('term');
+    $role    = session()->get('role');
+    $username = session()->get('username');
+
+    $builder = $this->memberModel
+        ->select('customer_id, name');
+
+    // 🔐 ADMIN → only own customers
+    if ($role !== 'superadmin') {
+        $builder->where('created_by', $username);
+    }
+
+    $customers = $builder
+        ->groupStart()
+        ->like('customer_id', $term)
+        ->orLike('name', $term)
+        ->groupEnd()
+        ->limit(10)
+        ->get()
+        ->getResultArray();
+
+    $result = [];
+
+    foreach ($customers as $row) {
+        $result[] = [
+            'label' => $row['customer_id'] . ' - ' . $row['name'],
+            'value' => $row['customer_id']
+        ];
+    }
+
+    return $this->response->setJSON($result);
+}
     // ================= FETCH CUSTOMER =================
-    public function getCustomer($customer_id)
-    {
-        if (!$this->request->isAJAX()) {
-            return;
-        }
-
-        $data = $this->memberModel
-            ->where('customer_id', $customer_id)
-            ->first();
-
-        return $this->response->setJSON($data);
+   public function getCustomer($customer_id)
+{
+    if (!$this->request->isAJAX()) {
+        return;
     }
+
+    $role    = session()->get('role');
+    $username = session()->get('username');
+
+    $builder = $this->memberModel
+        ->where('customer_id', $customer_id);
+
+    if ($role !== 'superadmin') {
+        $builder->where('created_by', $username);
+    }
+
+    $data = $builder->first();
+
+    if (!$data) {
+        return $this->response->setJSON([]);
+    }
+
+    return $this->response->setJSON($data);
+}
 
     // ================= SHARE LIST =================
     public function index()
 {
+    $role     = session()->get('role');
+    $username = session()->get('username');
+
     $builder = $this->shareModel->builder();
-    $builder->select('shares.*, members.name AS customer_name');
+    $builder->select('shares.*, members.name AS customer_name, members.created_by');
     $builder->join('members', 'members.customer_id = shares.customer_id', 'left');
+
+    // 🔐 ADMIN → only own shares
+    if ($role !== 'superadmin') {
+        $builder->where('members.created_by', $username);
+    }
+
     $builder->orderBy('shares.id', 'DESC');
 
-    $data['shares'] = $builder
-        ->get($this->shareModel->perPage ?? 10)
-        ->getResultArray();
-
-    $data['pager'] = $this->shareModel->pager;
-    $data['title'] = 'Share List';
+    $data['shares'] = $builder->get()->getResultArray();
+    $data['title']  = 'Share List';
 
     return view('share/sharecreationlist', $data);
 }
 
     // ================= EXPORT CSV =================
-   public function exportCsv()
+ public function exportCsv()
 {
-    $shares = $this->shareModel->findAll();
+    $role    = session()->get('role');
+    $username = session()->get('username');
+
+    $builder = $this->shareModel->builder();
+
+    // Restrict admin to only their created shares
+    if ($role !== 'superadmin') {
+        $builder->where('created_by', $username);
+    }
+
+    $shares = $builder->get()->getResultArray();
 
     $filename = 'share_list_' . date('Ymd_His') . '.csv';
 
@@ -238,68 +280,77 @@ class ShareController extends BaseController
 
     $file = fopen('php://output', 'w');
 
-    // CSV Header row
+    // CSV Header
     fputcsv($file, [
         'ID',
         'Customer ID',
-        
         'Share Type',
         'Number of Shares',
         'Account Number',
         'Total Share Amount'
     ]);
 
-    if (!empty($shares)) {
-        foreach ($shares as $row) {
-            fputcsv($file, [
-                $row['id'],
-                $row['customer_id'],
-               
-                $row['share_type'],
-                $row['number_of_shares'],
-                $row['account_number'],
-                $row['total'],
-            ]);
-        }
+    // CSV Rows
+    foreach ($shares as $row) {
+        fputcsv($file, [
+            $row['id'],
+            $row['customer_id'],
+            $row['share_type'],
+            $row['number_of_shares'],
+            $row['account_number'],
+            $row['total'],
+        ]);
     }
 
     fclose($file);
     return $response;
 }
-
     // ================= EXPORT PDF =================
-    public function exportPdf()
+
+public function exportPdf()
 {
-    $data['shares'] = $this->shareModel->findAll();
+    $role    = session()->get('role');
+    $usrename = session()->get('username');
+
+    $builder = $this->shareModel
+        ->select('
+            shares.id,
+            shares.customer_id,
+            members.name AS customer_name,
+            shares.share_type,
+            shares.share_value,
+            shares.number_of_shares,
+            shares.account_number,
+            shares.total
+        ')
+        ->join('members', 'members.customer_id = shares.customer_id', 'left');
+
+    // Restrict admin to only their created shares
+    if ($role !== 'superadmin') {
+        $builder->where('shares.created_by', $usrename);
+    }
+
+    $data['shares'] = $builder->findAll();
 
     $html = view('share/share_pdf', $data);
 
-    $options = new Options();
-    $options->set('defaultFont', 'DejaVu Sans');
-    $options->set('isHtml5ParserEnabled', true);
-    $options->set('isRemoteEnabled', true);
-
-    $dompdf = new Dompdf($options);
+    $dompdf = new Dompdf();
     $dompdf->loadHtml($html);
     $dompdf->setPaper('A4', 'portrait');
     $dompdf->render();
 
-    return $dompdf->stream(
-        'share_list_' . date('Ymd_His') . '.pdf',
-        ['Attachment' => true]
-    );
+    $dompdf->stream('share_list.pdf', ['Attachment' => true]);
 }
 
     // ================= GET NOMINEES =================
  public function getNominees($customerId)
 {
-    $db = \Config\Database::connect();
+    // 🔥 Copy nominee from member if not exists
+    $this->syncNomineesFromMember($customerId);
 
-    $nominees = $db->table('nominees')
-        ->select('nominee_name, nominee_father, nominee_relation, nominee_percentage')
+    $nominees = $this->nomineeModel
         ->where('customer_id', $customerId)
-        ->get()
-        ->getResultArray();
+        ->findAll();
 
     return $this->response->setJSON($nominees);
 }
@@ -475,5 +526,41 @@ if (!empty($names)) {
         'exists' => $exists > 0
     ]);
 }
+public function syncNomineesFromMember($customerId)
+{
+    $member = $this->memberModel
+        ->where('customer_id', $customerId)
+        ->first();
+
+    if (!$member) {
+        return;
+    }
+
+    // 🔴 Check nominee already exists
+    $exists = $this->nomineeModel
+        ->where('customer_id', $customerId)
+        ->countAllResults();
+
+    if ($exists > 0) {
+        return; // already copied
+    }
+
+    // 🔥 Insert nominee from member table
+    $this->nomineeModel->insert([
+        'customer_id'          => $customerId,
+        'nominee_name'         => $member['nominee_name'],
+        'nominee_father'       => $member['nominee_father'],
+        'nominee_gender'       => $member['nominee_gender'],
+        'nominee_relation'     => $member['nominee_relation'],
+        'nominee_mobile'       => $member['nominee_mobile'],
+        'nominee_age'          => $member['nominee_age'],
+        'nominee_address'      => $member['nominee_address'],
+        'nominee_other_details'=> $member['nominee_other_details'],
+        'nominee_percentage'   => $member['nominee_percentage'] ?? 100,
+    ]);
+}
+
+
+
 
 }

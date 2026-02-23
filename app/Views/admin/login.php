@@ -34,28 +34,40 @@
             <?php endif; ?>
 
 <form method="post" action="<?= base_url('admin/authenticate') ?>" id="loginForm">
+     <!-- User Type Dropdown -->
+                <div class="mb-3">
+                    <select name="role" id="role" class="form-control">
+                        <option value="">Select User Type</option>
+                        <option value="superadmin">Superadmin</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+   
+
           <div class="mb-3">
-    <input type="text" name="username" id="username"
-         class="form-control mb-2"
-           placeholder="Username">
-       </div>
-     <div class="mb-3">
-    <input type="password" name="password" id="password"
-           class="form-control mb-2"
-           placeholder="Password">
-</div>
-    <button type="submit" class="btn btn-primary w-100">Login</button>
-</form>
-</div>
-</div>
+                   <input type="text" name="username" id="username" class="form-control mb-2" placeholder="Username">
+          </div>
+          <div class="mb-3">
+                     <input type="password" name="password" id="password"  class="form-control mb-2" placeholder="Password">
+           </div>
+
+          <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form>
+   </div>
+  </div>
 </div>
 <!-- 🟢 CLIENT-SIDE VALIDATION -->
 <script>
 document.getElementById('loginForm').addEventListener('submit', function (e) {
     let errors = [];
 
+    const userType = document.getElementById('role').value;
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
+
+    if (userType === '') {
+        errors.push("User Role is Required");
+    }
 
     if (username === '') {
         errors.push("Username is required");

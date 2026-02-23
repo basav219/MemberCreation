@@ -9,6 +9,18 @@ $routes->get('admin/login', 'Admin::login');
 $routes->post('admin/authenticate', 'Admin::authenticate');
 $routes->get('admin/logout', 'Admin::logout');
 
+
+//super admin dashboard
+$routes->get('admin/dashboard', 'Admin::dashboard');
+//admin creation
+$routes->get('admin/create', 'Admin::create');
+$routes->post('admin/store', 'Admin::store');
+
+
+// Change Password
+$routes->get('admin/change_password/(:num)', 'Admin::change_password/$1');
+$routes->post('admin/update_password/(:num)', 'Admin::update_password/$1');
+
 // HOME
 $routes->get('/', 'Home::index');
 
@@ -16,7 +28,8 @@ $routes->get('/', 'Home::index');
 $routes->group('member', ['filter' => 'auth'], function($routes) {
     $routes->get('/', 'Member::index');        
     $routes->get('create', 'Member::create');  
-    $routes->post('store', 'Member::store');   
+    $routes->post('store', 'Member::store');
+    $routes->get('success', 'Member::success');   
     $routes->get('list', 'Member::list');      
     $routes->get('edit/(:num)', 'Member::edit/$1');
     $routes->post('update/(:num)', 'Member::update/$1');
@@ -24,6 +37,7 @@ $routes->group('member', ['filter' => 'auth'], function($routes) {
     $routes->get('export-csv', 'Member::exportCSV');
     $routes->get('export-pdf', 'Member::exportPDF');
     $routes->get('sharecreation', 'Member::sharecreation');
+    $routes->get('viewcustomer/(:segment)', 'Member::view/$1');
   
 });
 

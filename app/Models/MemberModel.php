@@ -21,7 +21,7 @@ class MemberModel extends Model
 
         // PERSONAL
         'dob','age','gender','occupation','religion','caste',
-        'adhar','pan','voter','marital_status',
+        'adhar','pan','voter','marital_status','ration_card_type',"rationcard_number" ,
 
         // DOCUMENTS
         'dl_no','gst_no','passport_no',
@@ -47,6 +47,8 @@ class MemberModel extends Model
 
         //INTRODUCER 
         'introducer_customer_id','introducer_name','introducer_father','introducer_mobile',
+
+        'created_by',
 
        
     ];

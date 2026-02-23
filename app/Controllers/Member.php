@@ -5,11 +5,14 @@ namespace App\Controllers;
 use App\Models\MemberModel;
 use App\Models\PincodeModel;
 use Dompdf\Dompdf;
+use App\Models\NomineeModel;
 
 class Member extends BaseController
 {
     protected $memberModel;
     protected $pincodeModel;
+    protected $nomineeModel;
+
 
     public function __construct()
     {
@@ -27,26 +30,35 @@ class Member extends BaseController
     // -----------------------------
     // List Members with Pagination
     // -----------------------------
-    public function list()
-    {
-        $search = $this->request->getGet('q');
+   public function list()
+{
+    $search   = $this->request->getGet('q');
+    $role     = session()->get('role');
+    $username = session()->get('username');
 
-        $builder = $this->memberModel;
+    $builder = $this->memberModel;
 
-        if ($search) {
-            $builder = $builder->like('customer_id', $search)
-                               ->orLike('name', $search);
-        }
-
-        $data = [
-            'members' => $builder->paginate(10),
-            'pager'   => $this->memberModel->pager,
-            'search'  => $search,
-        ];
-
-        return view('member/list', $data);
+    // 🔐 ROLE BASED FILTER
+    if ($role !== 'superadmin') {
+        $builder = $builder->where('created_by', $username);
     }
 
+    // 🔍 SEARCH
+    if ($search) {
+        $builder = $builder->groupStart()
+                           ->like('customer_id', $search)
+                           ->orLike('name', $search)
+                           ->groupEnd();
+    }
+
+    $data = [
+        'members' => $builder->paginate(10),
+        'pager'   => $this->memberModel->pager,
+        'search'  => $search,
+    ];
+
+    return view('member/list', $data);
+}
     // -----------------------------
     // Show Create Member Form
     // -----------------------------
@@ -120,13 +132,13 @@ class Member extends BaseController
         }
 
         $data = $this->request->getPost();
-
-
+         // 🔐 Track who created this member
+             $data['created_by'] = session()->get('username');
         // If customer_id is empty, generate
           if (empty($data['customer_id'])) {
                $data['customer_id'] = $this->memberModel->generateCustomerId();
           }
-
+    
                 // Checkbox values
         $data['dcc_adb_rupaycard'] = $this->request->getPost('dcc_adb_rupaycard') ? 'yes' : 'no';
         $data['dcc_adb_cheque'] = $this->request->getPost('dcc_adb_cheque') ? 'yes' : 'no';
@@ -156,8 +168,14 @@ class Member extends BaseController
             dd($this->memberModel->errors());
         }
 
-        return redirect()->to('/member/create')
-                         ->with('success', 'Member Created Successfully');
+        
+
+        session()->setFlashdata([
+    'customer_id' => $data['customer_id'],
+    'customer_name' => $data['name']
+      ]);
+
+         return redirect()->to('/member/success');;
     }
 
     // -----------------------------
@@ -268,66 +286,79 @@ class Member extends BaseController
     // -----------------------------
     // Export CSV
     // -----------------------------
-    public function exportCSV()
-    {
-        $members = $this->memberModel->findAll();
-
-        $filename = "members_" . date('Ymd_His') . ".csv";
-
-        header("Content-Description: File Transfer");
-        header("Content-Disposition: attachment; filename=$filename");
-        header("Content-Type: application/csv");
-
-        $file = fopen('php://output', 'w');
-
-        fputcsv($file, ['ID','Customer ID','Name','Father/Husband','Mobile','Email','DOB','Address']);
-
-        foreach ($members as $row) {
-            fputcsv($file, [
-                $row['id'],
-                $row['customer_id'],
-                $row['name'],
-                $row['father'],
-                $row['mobile'],
-                $row['email'],
-                $row['dob'],
-                $row['residential_address'],
-            ]);
-        }
-
-        fclose($file);
-        exit;
+   public function exportCSV()
+{
+    if (!session()->get('is_admin_logged_in')) {
+        return redirect()->to('/admin/login');
     }
 
+    $role = session()->get('role');
+    $username = session()->get('username');
+
+    if ($role === 'superadmin') {
+        // SuperAdmin gets all members
+        $members = $this->memberModel->findAll();
+    } elseif ($role === 'admin') {
+        // Admin gets only members they created
+        $members = $this->memberModel->where('created_by', $username)->findAll();
+    } else {
+        return redirect()->to('/admin/dashboard')->with('error', 'Access denied');
+    }
+
+    $filename = "members_" . date('Ymd_His') . ".csv";
+
+    header("Content-Description: File Transfer");
+    header("Content-Disposition: attachment; filename=$filename");
+    header("Content-Type: application/csv");
+
+    $file = fopen('php://output', 'w');
+    fputcsv($file, ['ID','Customer ID','Name','Father/Husband','Mobile','Email','DOB','Address','Created By']);
+
+    foreach ($members as $row) {
+        fputcsv($file, [
+            $row['id'],
+            $row['customer_id'],
+            $row['name'],
+            $row['father'],
+            $row['mobile'],
+            $row['email'],
+            $row['dob'],
+            $row['residential_address'],
+            $row['created_by'],
+        ]);
+    }
+
+    fclose($file);
+    exit;
+}
     // -----------------------------
     // Export PDF
     // -----------------------------
     public function exportPDF()
-    {
+{
+    if (!session()->get('is_admin_logged_in')) {
+        return redirect()->to('/admin/login');
+    }
+
+    $role = session()->get('role');
+    $username = session()->get('username');
+
+    if ($role === 'superadmin') {
         $data['members'] = $this->memberModel->findAll();
-
-        $html = view('member/member_pdf', $data);
-
-        $dompdf = new Dompdf();
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'landscape');
-        $dompdf->render();
-
-        $dompdf->stream('member_list.pdf', ['Attachment' => true]);
+    } elseif ($role === 'admin') {
+        $data['members'] = $this->memberModel->where('created_by', $username)->findAll();
+    } else {
+        return redirect()->to('/admin/dashboard')->with('error', 'Access denied');
     }
 
-    // -----------------------------
-    // AJAX: Introducer Search
-    // -----------------------------
-    public function searchIntroducer()
-    {
-        $q = $this->request->getGet('q') ?? '';
-        $results = $this->memberModel->like('customer_id', $q)
-                                     ->orLike('name', $q)
-                                     ->findAll(10);
+    $html = view('member/member_pdf', $data);
 
-        return $this->response->setJSON($results);
-    }
+    $dompdf = new \Dompdf\Dompdf();
+    $dompdf->loadHtml($html);
+    $dompdf->setPaper('A4', 'landscape');
+    $dompdf->render();
+    $dompdf->stream('member_list.pdf', ['Attachment' => true]);
+}
 
     // -----------------------------
     // AJAX: Fetch Location by Pincode
@@ -382,4 +413,82 @@ class Member extends BaseController
           return view('share/sharecreation');
     }
 
+public function view($id)
+{
+    // 1️⃣ Get member
+    $member = $this->memberModel->find($id);
+
+    if (!$member) {
+        return redirect()->back()->with('error', 'Member not found');
+    }
+
+    // 2️⃣ Get nominee using customer_id
+    $nomineeModel = new NomineeModel();
+
+    $nominee = $nomineeModel
+        ->where('customer_id', $member['customer_id'])
+        ->first();
+
+    // 3️⃣ Send data to view
+    return view('member/viewcustomer', [
+        'member'  => $member,
+        'nominee' => $nominee   // can be null, that's OK
+    ]);
+}
+public function index()
+{
+    $memberModel = new \App\Models\MemberModel();
+
+    // 👑 SUPERADMIN → see all
+    if (session()->get('role') === 'superadmin') {
+        $data['members'] = $memberModel->findAll();
+    }
+    // 👤 ADMIN → see only own records
+    else {
+        $data['members'] = $memberModel
+            ->where('created_by', session()->get('username'))
+            ->findAll();
+    }
+
+    return view('member/list', $data);
+}
+
+public function success()
+{
+    if (!session()->getFlashdata('customer_id')) {
+        return redirect()->to('/member/create');
+    }
+
+    return view('member/success');
+}
+
+public function searchIntroducer()
+{
+    $q = $this->request->getGet('q');
+
+    if (!$q || strlen($q) < 2) {
+        return $this->response->setJSON([]);
+    }
+
+    $role     = session()->get('role');
+    $username = session()->get('username');
+
+    $builder = $this->memberModel
+        ->select('customer_id, name, father, mobile')
+        ->groupStart()
+            ->like('customer_id', $q)
+            ->orLike('name', $q)
+        ->groupEnd();
+
+    // 🔐 ROLE BASED FILTER
+    if ($role !== 'superadmin') {
+        $builder->where('created_by', $username);
+    }
+
+    $members = $builder
+        ->limit(10)
+        ->findAll();
+
+    return $this->response->setJSON($members);
+}
 }

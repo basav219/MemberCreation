@@ -228,7 +228,7 @@
             <div class="row mb-2">
                 <div class="col-4">Adhar Number</div>
                 <div class="col-8">
-                    <input class="form-control" name="adhar" id="adhar" inputmode="numeric" placeholder="12 DIGIT ADHAR NUMBER" onkeydown="return onlyNumbers(event)"
+                    <input class="form-control" name="adhar" id="adhar" inputmode="numeric" placeholder="12 DIGIT ADHAR NUMBER" maxlength="12" onkeydown="return onlyNumbers(event)"
                     onpaste="return false" ondrop="return false" oninput="validateAdhar()">
                     <small id="adharError" style="color:red"></small>
                 </div>
@@ -237,7 +237,7 @@
               <div class="row mb-2">
                 <div class="col-4">PAN</div>
                 <div class="col-8">
-                    <input class="form-control" name="pan" id="pan" placeholder="ABCDE1234F" oninput="validatePan()">
+                    <input class="form-control" name="pan" id="pan" placeholder="ABCDE1234F" maxlength="10" oninput="validatePan()">
                     <small id="panError" style="color:red"></small>
                 </div>
             </div>
@@ -245,7 +245,7 @@
             <div class="row mb-2">
                 <div class="col-4">Voter-ID </div>
                 <div class="col-8">
-                    <input class="form-control" name="voter" placeholder="10 DIGIT VOTER ID NUMBER">
+                    <input class="form-control" name="voter" maxlength="10" placeholder="10 DIGIT VOTER ID NUMBER">
                 </div>
             </div>
             <div class="row mb-2">
@@ -263,28 +263,28 @@
             <div class="row mb-2">
                 <div class="col-4">DL No</div>
                 <div class="col-8">
-                    <input class="form-control" name="dl_no" placeholder="10 DIGIT DL NUMBER">
+                    <input class="form-control" name="dl_no" maxlength="10" placeholder="10 DIGIT DL NUMBER">
                 </div>
             </div>
              <hr class="my-4 border-gray-300">
             <div class="row mb-2">
                 <div class="col-4">GST No</div>
                 <div class="col-8">
-                    <input class="form-control" name="gst_no" placeholder="15 DIGIT GST NUMBER">
+                    <input class="form-control" name="gst_no" maxlength="15"placeholder="15 DIGIT GST NUMBER">
                 </div>
             </div>
 
             <div class="row mb-2">
                 <div class="col-4">Passport No</div>
                 <div class="col-8">
-                    <input class="form-control" name="passport_no" placeholder="8 DIGIT PASSPORT NUMBER">
+                    <input class="form-control" name="passport_no" maxlength="8" placeholder="8 DIGIT PASSPORT NUMBER">
                 </div>
             </div>
 
             <div class="row mb-2">
                 <div class="col-4">Gas Consumer No</div>
                 <div class="col-8">
-                    <input class="form-control" name="gas_consumer_no" placeholder="10 DIGIT GAS CONSUMER NUMBER">
+                    <input class="form-control" name="gas_consumer_no" maxlength="10" placeholder="10 DIGIT GAS CONSUMER NUMBER">
                 </div>
             </div>
 
@@ -620,6 +620,7 @@
         <button type="submit" class="btn btn-success">Save</button>
         <!-- <button type="button" class="btn btn-light">Modify</button> -->
         <button type="reset" class="btn btn-light">Clear</button>
+        
         <!-- <button type="button" class="btn btn-light">Print</button>
         <button type="button" class="btn btn-light">Exit</button> -->
         </div>

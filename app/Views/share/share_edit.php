@@ -230,6 +230,9 @@ $totalPercent += (int)$nom['nominee_percentage'];
     </td>
 
     <td>
+        <button type="button" class="btn btn-warning btn-sm"
+    onclick="editRow(this)">Edit</button>
+
         <button type="button" class="btn btn-danger btn-sm"
             onclick="removeRow(this, <?= (int)$nom['nominee_percentage'] ?>)">X</button>
     </td>
@@ -387,6 +390,9 @@ $totalPercent += (int)$nom['nominee_percentage'];
 
 
 <script>
+
+let editingRow = null;
+let editingOldPercent = 0;
 /* =============================
    INITIAL TOTAL (PHP → JS)
 ============================= */
@@ -409,6 +415,29 @@ $('#nominee_mobile').on('input', function () {
         this.value = this.value.slice(0, 10);
     }
 });
+
+function editRow(btn) {
+    editingRow = $(btn).closest('tr');
+
+    // Read values from hidden inputs
+    $('#nominee_name').val(editingRow.find('input[name="nominee_name[]"]').val());
+    $('#nominee_father').val(editingRow.find('input[name="nominee_father[]"]').val());
+    $('#relation').val(editingRow.find('input[name="nominee_relation[]"]').val());
+
+    let gender = editingRow.find('input[name="nominee_gender[]"]').val();
+    $('input[name="nominee_gender_temp"][value="' + gender + '"]').prop('checked', true);
+
+    $('#nominee_mobile').val(editingRow.find('input[name="nominee_mobile[]"]').val());
+    $('#nominee_age').val(editingRow.find('input[name="nominee_age[]"]').val());
+    $('#nominee_address').val(editingRow.find('input[name="nominee_address[]"]').val());
+    $('#nominee_other_details').val(editingRow.find('input[name="nominee_other_details[]"]').val());
+
+    editingOldPercent = parseInt(
+        editingRow.find('input[name="nominee_percentage[]"]').val()
+    );
+
+    $('#nominee_percentage').val(editingOldPercent);
+}
 
 /* =============================
    ADD NOMINEE
@@ -440,20 +469,28 @@ function addNominee() {
         return;
     }
 
-    if ((total + percent) > 100) {
-        alert('Total nominee percentage cannot exceed 100');
-        return;
-    }
+    /* ==========================
+       EDIT EXISTING NOMINEE
+    ========================== */
+    if (editingRow) {
 
-    total += percent;
+        let newTotal = total - editingOldPercent + percent;
 
-    $('#nomineeTable tbody').append(`
-        <tr>
+        if (newTotal > 100) {
+            alert('Total nominee percentage cannot exceed 100');
+            return;
+        }
+
+        total = newTotal;
+
+        editingRow.html(`
             <td>${name}</td>
             <td>${father}</td>
             <td>${relation}</td>
             <td>${percent}%</td>
             <td>
+                <button type="button" class="btn btn-warning btn-sm"
+                    onclick="editRow(this)">Edit</button>
                 <button type="button" class="btn btn-danger btn-sm"
                     onclick="removeRow(this, ${percent})">X</button>
             </td>
@@ -467,17 +504,68 @@ function addNominee() {
             <input type="hidden" name="nominee_address[]" value="${address}">
             <input type="hidden" name="nominee_other_details[]" value="${other}">
             <input type="hidden" name="nominee_percentage[]" value="${percent}">
-        </tr>
-    `);
+        `);
+
+        editingRow = null;
+        editingOldPercent = 0;
+
+    } 
+    /* ==========================
+       ADD NEW NOMINEE
+    ========================== */
+    else {
+
+        if ((total + percent) > 100) {
+            alert('Total nominee percentage cannot exceed 100');
+            return;
+        }
+
+        total += percent;
+
+        $('#nomineeTable tbody').append(`
+            <tr>
+                <td>${name}</td>
+                <td>${father}</td>
+                <td>${relation}</td>
+                <td>${percent}%</td>
+                <td>
+                    <button type="button" class="btn btn-warning btn-sm"
+                        onclick="editRow(this)">Edit</button>
+                    <button type="button" class="btn btn-danger btn-sm"
+                        onclick="removeRow(this, ${percent})">X</button>
+                </td>
+
+                <input type="hidden" name="nominee_name[]" value="${name}">
+                <input type="hidden" name="nominee_father[]" value="${father}">
+                <input type="hidden" name="nominee_gender[]" value="${gender}">
+                <input type="hidden" name="nominee_relation[]" value="${relation}">
+                <input type="hidden" name="nominee_mobile[]" value="${mobile}">
+                <input type="hidden" name="nominee_age[]" value="${age}">
+                <input type="hidden" name="nominee_address[]" value="${address}">
+                <input type="hidden" name="nominee_other_details[]" value="${other}">
+                <input type="hidden" name="nominee_percentage[]" value="${percent}">
+            </tr>
+        `);
+    }
 
     $('#totalPercentage').text(total);
-
-    // clear fields
-    $('#nominee_name,#nominee_father,#nominee_mobile,#nominee_age,#nominee_percentage').val('');
-    $('#nominee_address,#nominee_other_details').val('');
+    resetNomineeForm();
+}
+function resetNomineeForm() {
+    $('#nominee_name').val('');
+    $('#nominee_father').val('');
     $('#relation').val('');
     $('input[name="nominee_gender_temp"]').prop('checked', false);
+    $('#nominee_mobile').val('');
+    $('#nominee_age').val('');
+    $('#nominee_address').val('');
+    $('#nominee_other_details').val('');
+    $('#nominee_percentage').val('');
+
+    editingRow = null;
+    editingOldPercent = 0;
 }
+
 
 /* =============================
    REMOVE NOMINEE

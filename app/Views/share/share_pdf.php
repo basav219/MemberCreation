@@ -34,11 +34,12 @@
         <tr>
             <th>ID</th>
             <th>Customer ID</th>
+            <th>Customer Name</th>
             <th>Share Type</th>
-            <th>Membership Date</th>
-            <th>LF Number</th>
+            <th>Share Value</th>
+            <th>No of Shares</th>
             <th>Account Number</th>
-            <th>Resolution Date</th>
+            <th>Total Amount</th>
         </tr>
     </thead>
     <tbody>
@@ -46,12 +47,13 @@
             <?php foreach ($shares as $row): ?>
                 <tr>
                     <td><?= $row['id'] ?></td>
-                    <td><?= esc($row['customer_id']) ?></td>
-                    <td><?= esc($row['share_type']) ?></td>
-                    <td><?= esc($row['membership_date']) ?></td>
-                    <td><?= esc($row['lf_number']) ?></td>
-                    <td><?= esc($row['account_number']) ?></td>
-                    <td><?= esc($row['resolution_date']) ?></td>
+                                <td><?= esc($row['customer_id']) ?></td>
+                                <td><?= esc($row['customer_name'] ?? '-') ?></td>
+                                <td><?= esc($row['share_type']) ?></td>
+                                <td><?= esc($row['share_value']) ?></td>
+                                <td><?= esc($row['number_of_shares']) ?></td>
+                                <td><?= esc($row['account_number']) ?></td>
+                                <td><?= esc($row['total']) ?></td>
                 </tr>
             <?php endforeach; ?>
         <?php else: ?>
